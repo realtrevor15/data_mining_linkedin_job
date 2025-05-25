@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">Candidate Dashboard</h1>
+    <p class="text-gray-600 text-lg">Discover personalized job recommendations for our candidates</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for candidate in candidates %}
+    <div class="card-hover bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    {{ candidate.public_id[0].upper() }}
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ candidate.public_id }}</h3>
+                    <p class="text-gray-600 text-sm">Candidate Profile</p>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex items-center text-sm text-gray-600 mb-2">
+                    <i class="fas fa-chart-line mr-2 text-blue-500"></i>
+                    <span>{{ candidate.recommendations|length }} Job Matches</span>
+                </div>
+                
+                {% if candidate.recommendations %}
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <div class="text-xs text-gray-500 mb-1">Top Match Score</div>
+                    <div class="flex items-center">
+                        <div class="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                            <div class="similarity-bar h-2 rounded-full" style="width: {{ (candidate.recommendations[0].similarity_score * 100)|round(1) }}%"></div>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">{{ (candidate.recommendations[0].similarity_score * 100)|round(1) }}%</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <a href="/candidate/{{ candidate.public_id }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200">
+                <i class="fas fa-eye mr-2"></i>
+                View Recommendations
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not candidates %}
+<div class="text-center py-12">
+    <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
+    <h3 class="text-xl font-medium text-gray-500 mb-2">No candidates found</h3>
+    <p class="text-gray-400">Make sure your results.json file is in the correct location.</p>
+</div>
+{% endif %}
+{% endblock %}
