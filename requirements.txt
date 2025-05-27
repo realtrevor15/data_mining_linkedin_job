@@ -1,4 +1,10 @@
 flask
+<<<<<<< HEAD
 numpy
 pandas
 beautifulsoup4
+=======
+beautifulsoup4
+numpy
+pandas
+>>>>>>> 529667b (final)

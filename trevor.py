@@ -1,31 +1,34 @@
 import json
 
-def filter_unique_public_id(input_file='result.json', output_file='results.json'):
-    # Đọc file JSON
-    try:
-        with open(input_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception as e:
-        print(f"Error reading {input_file}: {str(e)}")
-        return
-    
-    # Lọc public_id trùng lặp, giữ bản ghi đầu tiên
-    seen_public_ids = set()
-    unique_data = []
-    
-    for item in data:
-        public_id = item['public_id']
-        if public_id not in seen_public_ids:
-            seen_public_ids.add(public_id)
-            unique_data.append(item)
-    
-    # Lưu vào file JSON mới
-    try:
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(unique_data, f, ensure_ascii=False, indent=4)
-        print(f"Filtered data saved to {output_file}. Total unique candidates: {len(unique_data)}")
-    except Exception as e:
-        print(f"Error writing to {output_file}: {str(e)}")
+input_file = 'job_candidate_result.json'
+output_file = 'job_candidate_result_unique.json'
 
-if __name__ == '__main__':
-    filter_unique_public_id()
+# Đọc file JSON đầu vào
+with open(input_file, 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+# Xử lý loại bỏ candidate_id trùng lặp
+for job in data:
+    # Tạo dictionary để lưu candidate_id với similarity_score cao nhất
+    unique_candidates = {}
+    
+    # Duyệt qua danh sách recommended_candidates
+    for candidate in job['recommended_candidates']:
+        candidate_id = candidate['public_id']
+        score = candidate['similarity_score']
+        
+        # Nếu candidate_id chưa có hoặc score mới cao hơn, cập nhật
+        if candidate_id not in unique_candidates or score > unique_candidates[candidate_id]['similarity_score']:
+            unique_candidates[candidate_id] = {
+                'public_id': candidate_id,
+                'similarity_score': score
+            }
+    
+    # Cập nhật lại danh sách recommended_candidates
+    job['recommended_candidates'] = list(unique_candidates.values())
+
+# Lưu kết quả vào file JSON mới
+with open(output_file, 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=4)
+
+print(f"Đã lưu kết quả vào {output_file}")
